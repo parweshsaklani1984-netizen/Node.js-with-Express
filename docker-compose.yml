@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: ./backend
+    image: ${DOCKERHUB_USERNAME:-your-dockerhub-username}/assignment-backend:latest
+    expose:
+      - "5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  frontend:
+    build: ./frontend
+    image: ${DOCKERHUB_USERNAME:-your-dockerhub-username}/assignment-frontend:latest
+    environment:
+      BACKEND_URL: http://backend:5000/process
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
